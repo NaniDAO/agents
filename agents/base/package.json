@@ -1,7 +1,6 @@
 {
     "dependencies": {
       "@google-cloud/functions-framework": "^3.4.2",
-      "openai": "^4.72.0",
       "viem": "^2.21.45"
     },
     "scripts": {

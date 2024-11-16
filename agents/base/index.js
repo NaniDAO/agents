@@ -1,34 +1,16 @@
 const { createPublicClient, createWalletClient, http } = require("viem");
 const { privateKeyToAccount } = require("viem/accounts");
 const { base } = require("viem/chains");
-const OpenAI = require("openai");
 const functions = require("@google-cloud/functions-framework");
 
-const PERMITS_ADDRESS = "0xa9606fB9Ebc5c7Fe8bfa78462ad914753BC761c6";
+const PERMITS_ADDRESS = "0xa9606fB9Ebc5c7Fe8bfa78462ad914753BC761c6"; // ADDRESS ON BASE
 
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+const chain = base; // DEFAULT CHAIN 
 
 async function evaluateCondition(prompt, context = {}) {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "anthropic/claude-3.5-sonnet",
-      messages: [
-        {
-          role: "system",
-          content: "You are evaluating execution conditions for DeFi transactions. Respond with only 'true' or 'false' based on whether the condition is met given the context.",
-        },
-        {
-          role: "user",
-          content: `Condition: "${prompt}"\nContext: ${JSON.stringify(context)}`,
-        },
-      ],
-    });
-
-    const decision = completion.choices[0]?.message?.content?.trim().toLowerCase();
-    return decision === "true";
+    // Implement your evaluation logic here 
+    return true 
   } catch (error) {
     console.error("Error evaluating condition:", error);
     return false;
@@ -44,16 +26,16 @@ async function executePermits() {
 
     // Set up clients
     const account = privateKeyToAccount(PRIVATE_KEY);
-    console.log("Executor account:", account.address);
+    console.log("Executor Account:", account.address);
 
     const walletClient = createWalletClient({
-      chain: base,
+      chain,
       account: account,
       transport: http(),
     });
 
     const publicClient = createPublicClient({
-      chain: base,
+      chain,
       transport: http(),
     });
 
