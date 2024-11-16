@@ -38,8 +38,26 @@ async function checkCondition(prompt) {
       messages: [
         {
           role: "system",
-          content:
-            "Extract the city name from the weather condition prompt. Use capitalized city names like: Samui, London, NewYork, NewDelhi, Bangalore. Respond with ONLY the city name.",
+          content: `Extract and format the location for the Tomorrow.io weather API.
+
+    Rules:
+    - Format US cities as: CityName,StateName,USA (example: NewYork,NY,USA)
+    - Format international cities with country: CityName
+    - Use no spaces, separate with commas
+    - Capitalize city names appropriately
+
+    Common examples:
+    - NewYork,NY,USA
+    - LosAngeles,CA,USA
+    - London
+    - Paris
+    - Tokyo
+    - NewDelhi
+    - Dubai
+    - Singapore
+    - Samui
+
+    Respond with ONLY the formatted location string.`,
         },
         {
           role: "user",
