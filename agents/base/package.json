@@ -1,0 +1,13 @@
+{
+    "dependencies": {
+      "@google-cloud/functions-framework": "^3.4.2",
+      "viem": "^2.21.45"
+    },
+    "scripts": {
+       "start": "functions-framework --target=checkAndExecutePermits"
+     },
+    "devDependencies": {
+      "@types/node": "^22.9.0"
+    }
+  }
+  
