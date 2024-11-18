@@ -1,31 +1,56 @@
 const { createPublicClient, createWalletClient, http } = require("viem");
-const { privateKeyToAccount } = require("viem/accounts");
 const { base } = require("viem/chains");
+import { toGcpAccount } from "@nanidao/gcp-account";
 const functions = require("@google-cloud/functions-framework");
 
 const PERMITS_ADDRESS = "0xa9606fB9Ebc5c7Fe8bfa78462ad914753BC761c6"; // ADDRESS ON BASE
 
 const chain = base; // DEFAULT CHAIN
 
-async function evaluateCondition(prompt, context = {}) {
+async function evaluateCondition(commandString, context = {}) {
   try {
-    // Implement your evaluation logic here
+    const publicClient = createPublicClient({
+      chain,
+      transport: http(),
+    });
+
+    // Simulate the transaction
+    await publicClient.simulateContract({
+      address: PERMITS_ADDRESS,
+      abi: [
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "string", name: "command", type: "string" },
+          ],
+          name: "execute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      functionName: "execute",
+      args: [context.owner, commandString],
+      account: context.agent, // The agent address that would execute this
+    });
+
+    // If simulation succeeds (doesn't revert), return true
     return true;
   } catch (error) {
-    console.error("Error evaluating condition:", error);
+    console.log("Transaction simulation failed:", error.message);
     return false;
   }
 }
 
 async function executePermits() {
   try {
-    const PRIVATE_KEY = process.env.AGENT_PK;
-    if (!PRIVATE_KEY) {
-      throw new Error("Agent private key not set");
+    const CREDENTIALS = process.env.CREDENTIALS;
+    if (!CREDENTIALS) {
+      throw new Error("Agent CREDENTIALS not set");
     }
 
     // Set up clients
-    const account = privateKeyToAccount(PRIVATE_KEY);
+    const account = await toGcpAccount({ credentials: stringCredentials });
     console.log("Executor Account:", account.address);
 
     const walletClient = createWalletClient({
@@ -106,7 +131,10 @@ async function executePermits() {
         console.log(`Evaluating condition: ${permit.prompt}`);
 
         // Check if conditions are met
-        const shouldExecute = await evaluateCondition(permit.prompt, context);
+        const shouldExecute = await evaluateCondition(permit.commandString, {
+          owner: permit.owner,
+          agent: account.address,
+        });
 
         if (!shouldExecute) {
           console.log("Conditions not met, skipping execution");
@@ -147,8 +175,8 @@ async function executePermits() {
 }
 
 // Cloud Function entry point
-exports.checkAndExecutePermits = functions.http(
-  "checkAndExecutePermits",
+exports.checkAndTryPermits = functions.http(
+  "checkAndTryPermits",
   async (req, res) => {
     try {
       await executePermits();
