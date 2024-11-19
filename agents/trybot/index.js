@@ -1,6 +1,6 @@
 const { createPublicClient, createWalletClient, http } = require("viem");
 const { base } = require("viem/chains");
-import { toGcpAccount } from "@nanidao/gcp-account";
+const { toGcpAccount } = require("@nanidao/gcp-account");
 const functions = require("@google-cloud/functions-framework");
 
 const PERMITS_ADDRESS = "0xa9606fB9Ebc5c7Fe8bfa78462ad914753BC761c6"; // ADDRESS ON BASE
@@ -50,7 +50,7 @@ async function executePermits() {
     }
 
     // Set up clients
-    const account = await toGcpAccount({ credentials: stringCredentials });
+    const account = await toGcpAccount({ credentials: CREDENTIALS });
     console.log("Executor Account:", account.address);
 
     const walletClient = createWalletClient({
