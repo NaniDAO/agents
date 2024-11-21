@@ -1,0 +1,4271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Space+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='black'/%3E%3Ctext x='50' y='70' font-family='Arial' font-size='60' fill='white' text-anchor='middle'%3E⌘%3C/text%3E%3C/svg%3E"
+    />
+
+
+    <title>nani agents</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+  </head>
+  <style>
+    /* Base Styles */
+    body {
+      font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Ubuntu;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      color: #000;
+      line-height: 1.6;
+    }
+
+
+    /* Header Styles */
+    .header-container {
+      position: relative;
+      margin-bottom: 40px;
+      overflow: hidden;
+    }
+
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+
+    .header-title {
+      font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+      font-size: 3.2em;
+      font-weight: 200;
+      letter-spacing: 0.1em;
+      color: #333;
+      margin: 0;
+      position: relative;
+    }
+
+
+    .header-title::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 350px;
+      height: 1px;
+      background: #4a9eff;
+    }
+
+
+    .header-title .icon {
+      font-size: 0.8em;
+      display: inline-block;
+      margin-left: 8px;
+      transform: translateY(-2px);
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    }
+
+
+    .header-accent {
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      width: calc(100% + 40px);
+      height: calc(100% + 40px);
+      background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0) 100%
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+
+
+    .header-accent::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+      );
+    }
+
+
+    .title-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+
+    .subheader {
+      font-family: monospace;
+      color: #666;
+      font-size: 14px;
+      font-style: italic;
+      margin-top: -4px;
+      letter-spacing: 0.5px;
+    }
+
+
+    .wallet-section {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+
+    /* Main Container */
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid #000;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+
+    .stats-container {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+      border: 1px solid #eee;
+    }
+
+
+    .stats-container div {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: "Space Mono", monospace;
+      font-size: 13px;
+      color: #666;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+
+    .container > h3:first-child {
+      margin: 0;
+    }
+
+
+    /* Form Layout and Controls */
+    .input-group {
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+
+    .input-wrapper input {
+      flex: 1;
+    }
+
+
+    /* Labels */
+    .input-label {
+      font-family: "Space Mono", monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: #666;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+
+    .input-label::before {
+      content: "※";
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+
+    .label-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+
+    /* Input Elements */
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: "Space Mono", monospace;
+      font-size: 14px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      background: white;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+
+    input:focus,
+    textarea:focus {
+      background: white;
+      border-color: #000;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+
+    /* Specific Field Styles */
+    #agent-address {
+      width: 100%;
+      max-width: 240px;
+    }
+
+
+    #command-string {
+      width: 100%;
+      max-width: 600px;
+      border-color: #4caf50;
+    }
+
+
+    #prompt {
+      width: 100%;
+      min-height: 80px;
+      max-width: 600px;
+      resize: vertical;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+
+    #uses,
+    #expiry-hours {
+      width: 120px;
+      text-align: left;
+    }
+
+
+    /* Buttons */
+    button {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+
+    button:hover:not(:disabled) {
+      background: #333;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+
+    #connect-wallet,
+    #logout-btn {
+      background: transparent;
+      border: 1px solid #000;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      color: #000;
+    }
+
+
+    #connect-wallet:hover,
+    #logout-btn:hover {
+      background: #000;
+      color: #fff;
+    }
+
+
+    .set-permission-btn,
+    #set-permission-btn {
+      background: black;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-family: "Space Mono", monospace;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+
+    /* Revoke and Execute buttons */
+    /* Execute button */
+    .permission-item .execute-btn {
+      background: #333;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px 12px;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: all 0.2s ease;
+      border-radius: 6px;
+      color: white;
+    }
+
+
+    .permission-item .execute-btn:hover {
+      transform: translateY(-50%) scale(1.1);
+      background: #444;
+    }
+
+
+    /* Revoke button */
+    .permission-item .revoke-btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease;
+    }
+
+
+    .permission-item .revoke-btn:hover {
+      transform: translateY(-50%) scale(1.1);
+    }
+
+
+    /* Prompt Memo */
+    .permission-prompt {
+      margin: 8px 0;
+      font-family: "Space Mono", monospace;
+      font-size: 13px;
+      color: #666;
+    }
+
+
+    .permission-prompt span {
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 8px;
+      font-size: 12px;
+    }
+
+
+    /* Hidden by default */
+    .owner-view,
+    .agent-view,
+    #active-permissions {
+      display: none;
+    }
+
+
+    /* Form displays when mode toggle is set to "set" */
+    .mode-toggle input[value="view"]:checked ~ #set-permission-form {
+      display: none;
+    }
+
+
+    .mode-toggle input[value="set"]:checked ~ #set-permission-form {
+      display: block;
+    }
+
+
+    /* Tip Container */
+    .tip-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fafafa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      flex-grow: 1;
+      max-width: 320px;
+    }
+
+
+    .tip-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-grow: 1;
+    }
+
+
+    .tip-input {
+      width: 100px;
+      text-align: right;
+      padding: 8px;
+    }
+
+
+    .tip-controls {
+      display: flex;
+      gap: 2px;
+    }
+
+
+    .tip-control-btn {
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      padding: 4px 8px;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      color: #000;
+    }
+
+
+    .tip-label {
+      color: #666;
+      font-size: 13px;
+    }
+
+
+    .eth-symbol {
+      font-size: 13px;
+      color: #666;
+    }
+
+
+    /* Command Preview */
+    #command-preview {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 8px;
+      margin-bottom: 40px;
+      padding: 12px 14px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      font-family: "Space Mono", monospace;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+
+    /* Token Styling */
+    .token {
+      display: inline-block;
+    }
+
+
+    .token.swap,
+    .command-preview .token.swap {
+      color: #4a9eff;
+    }
+
+
+    .token.number,
+    .command-preview .token.number {
+      color: #00ff9d;
+    }
+
+
+    .token.token-name,
+    .command-preview .token.token-name {
+      color: #ff69b4;
+    }
+
+
+    .token.conjunction,
+    .command-preview .token.conjunction {
+      color: #666666;
+    }
+
+
+    /* Permission Items */
+    .permission-item {
+      padding: 24px 140px 24px 0;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      min-height: 120px;
+    }
+
+
+    .permission-item:last-child {
+      border-bottom: none;
+    }
+
+
+    .permission-info {
+      flex-grow: 1;
+      margin-right: 15px;
+    }
+
+
+    .agent-line {
+      margin: 8px 0;
+      font-family: "Space Mono", monospace;
+      font-size: 13px;
+    }
+
+
+    .agent-line a,
+    .agent-line .agent-name {
+      color: #4a9eff;
+      text-decoration: none;
+    }
+
+
+    .agent-line a:hover {
+      text-decoration: underline;
+    }
+
+
+    .agent-line .label {
+      color: #666;
+      margin-right: 4px;
+    }
+
+
+    /* Permission Details */
+    .permission-details {
+      font-family: "Space Mono", monospace;
+      font-size: 13px;
+      color: #666;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+
+    .permission-details a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed #666;
+    }
+
+
+    .permission-details a:hover {
+      border-bottom-style: solid;
+      opacity: 0.8;
+    }
+
+
+    /* Character Display */
+    .character-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: -5px;
+      margin-left: 8px;
+    }
+
+
+    #character-image {
+      width: 26px;
+      height: 26px;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+
+    #character-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+
+    #character-image:hover {
+      transform: translateY(-50%) scale(1.1); /* Modified to keep vertical centering */
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    }
+
+
+    .character-description {
+      font-family: monospace;
+      font-size: 10px;
+      color: #666;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+
+    /* Placeholder Animation */
+    .placeholder-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: -1;
+    }
+
+
+    .circular-text {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      animation: rotate 20s linear infinite;
+    }
+
+
+    .circular-text span {
+      position: absolute;
+      left: 50%;
+      transform-origin: 0 200px;
+      font-size: 20px;
+      animation: colorChange 8s linear infinite;
+    }
+
+
+    .circular-logos {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      animation: rotateCounterClockwise 15s linear infinite;
+    }
+
+
+    .logo-container {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+    }
+
+
+    .logo-container img,
+    .logo-container .cmd-symbol {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      filter: grayscale(100%) brightness(0.8);
+      transition: all 0.3s ease;
+      font-size: 24px;
+      color: #666;
+    }
+
+
+    .placeholder-symbol {
+      font-size: 120px;
+      color: #cecece;
+      animation: pulse 2s infinite;
+      z-index: 2;
+      position: absolute;
+      transform-origin: center;
+    }
+
+
+    /* Animations */
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+
+    @keyframes rotateCounterClockwise {
+      from {
+        transform: rotate(360deg);
+      }
+      to {
+        transform: rotate(0deg);
+      }
+    }
+
+
+    @keyframes colorChange {
+      0% {
+        color: #ff6b6b;
+      }
+      25% {
+        color: #4ecdc4;
+      }
+      50% {
+        color: #45b7d1;
+      }
+      75% {
+        color: #96ceb4;
+      }
+      100% {
+        color: #ff6b6b;
+      }
+    }
+
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+    }
+
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+
+    /* Modal and Dialog Styles */
+    .confirmation-dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+
+
+    .dialog-content {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      animation: slideUp 0.3s ease;
+    }
+
+
+    .dialog-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+
+    .dialog-message {
+      color: #666;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+
+    .dialog-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+
+    .dialog-button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+
+    .dialog-button.confirm {
+      background: #000;
+      color: white;
+      border: none;
+    }
+
+
+    .dialog-button.cancel {
+      background: transparent;
+      border: 1px solid #ddd;
+      color: #666;
+    }
+
+
+    /* Loading and Toast Notifications */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(3px);
+      animation: fadeIn 0.2s ease;
+    }
+
+
+    .loading-spinner {
+      animation: rotate 2s linear infinite;
+    }
+
+
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+
+    .toast {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 20px;
+      margin: 8px;
+      min-width: 280px;
+      max-width: 400px;
+      overflow-wrap: break-word;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+
+    /* Error States */
+    .error {
+      color: #d32f2f;
+      font-size: 14px;
+      margin-top: 8px;
+      padding: 12px;
+      background-color: #fde8e8;
+      border-radius: 6px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+
+    /* Mode Toggle */
+    .mode-toggle {
+      margin-bottom: 32px;
+    }
+
+
+    .mode-toggle label {
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid #000;
+    }
+
+
+    .mode-toggle input[type="radio"] {
+      display: none;
+    }
+
+
+    .mode-toggle input[type="radio"]:checked + label {
+      background: #000;
+      color: #fff;
+    }
+
+
+    .mode-toggle label:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+
+    /* Form Footer */
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 480px;
+      margin-top: 60px;
+      gap: 16px;
+    }
+
+
+    /* Utility Classes */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+      position: relative;
+    }
+
+
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+
+      .header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+
+      .container,
+      .stats-container {
+        width: 100%;
+      }
+
+
+      input,
+      textarea,
+      button {
+        max-width: 100%;
+        width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+
+      #uses,
+      #expiry-hours {
+        width: 120px;
+      }
+
+
+      .tip-container {
+        flex-grow: 0;
+      }
+
+
+      #command-preview {
+        max-width: 100%;
+      }
+
+
+      .form-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+
+      .input-group {
+        margin-bottom: 40px;
+      }
+    }
+
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+  <body>
+    <div class="placeholder-container">
+      <div class="circular-text">
+        <span>D</span><span>E</span><span>L</span><span>E</span><span>G</span
+        ><span>A</span><span>T</span><span>E</span> <span>&nbsp;</span
+        ><span>C</span><span>O</span><span>M</span><span>M</span><span>A</span
+        ><span>N</span><span>D</span><span>S</span>
+      </div>
+      <div class="circular-logos">
+        <div class="logo-container">
+          <img
+            src="https://github.com/Uniswap/brand-assets/raw/main/Uniswap%20Brand%20Assets/Uniswap_icon_pink.svg"
+            alt="Uniswap logo"
+          />
+        </div>
+        <div class="logo-container">
+          <img
+            src="https://ens.domains/assets/brand/mark/ens-mark-White.svg"
+            alt="ENS logo"
+          />
+        </div>
+        <div class="logo-container">
+          <span class="cmd-symbol">⌘</span>
+        </div>
+      </div>
+      <div class="placeholder-symbol">⌘</div>
+    </div>
+
+
+    <div class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-spinner">✸</div>
+      </div>
+    </div>
+    <div class="header">
+      <div class="title-section">
+        <h1 class="header-title">⌘ nani agents</h1>
+        <div class="subheader">let autonomous agents manage your wallet</div>
+      </div>
+      <div class="wallet-section">
+        <button id="connect-wallet">Connect Wallet</button>
+        <div id="account-info"></div>
+        <button id="logout-btn" style="display: none">Disconnect</button>
+      </div>
+    </div>
+
+
+    <div class="about-section">
+      <details>
+        <summary>1) What</summary>
+        <div class="about-content">
+          <h4>Agents?</h4>
+          <p>
+            An app for agents to complete routine "commands" from your wallet
+            with token allowances. The default agent is "nani" which comes with
+            a set of common tools, such as price feeds. You can also select
+            "weatherbot" to try out weather conditions.
+          </p>
+
+
+          <p>
+            Commands specify the task you want the agent to complete. Like
+            tokens and amounts and users involved. For example, you can give
+            swap or send instructions, such as "swap 1 WETH for 4000 DAI" to
+            make a limit order (nani will simulate until price hits and then
+            execute), or "send 1000 usdc to mark" for an ENS send.
+          </p>
+
+
+          <p>
+            Each task command you give an agent can have a number of repeat uses
+            and a deadline for completion. This way tasks expire automatically
+            and securely. The "prompt" is the instruction given to the agent
+            about what kinds of conditions should be applied before command
+            execution. This allows you to customize your own safety guards on
+            the fly.
+          </p>
+
+
+          <p>
+            At all times, each agent command can be revoked. A small tip
+            provides the agent with gas and incentives to prioritize your
+            request (~3 cents to start).
+          </p>
+
+
+          <p>
+            Currently, Uniswap V3 swaps and ENS sends are supported on Base
+            chain. Note: raw ETH is not supported as that is not possible with
+            remote approvals (for now). Just deposit into
+            <a
+              href="https://basescan.org/token/0x4200000000000000000000000000000000000006#writeContract#F2"
+              target="_blank"
+              rel="noopener noreferrer"
+              >WETH</a
+            >.
+          </p>
+
+
+          <h4>How to Use</h4>
+          <ol>
+            <li>
+              <strong>Set a Permission:</strong>
+              <ul>
+                <li>Enter the agent's address (can be 0x or basename)</li>
+                <li>Write the IE command (e.g., "swap 42 USDT for DEGEN")</li>
+                <li>Set number of times this permission can be used</li>
+                <li>Set expiry time in hours (0 for no expiry)</li>
+                <li>Add an optional prompt message for context</li>
+                <li>Note: If using a nani agent LLM, prompts work as rules</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Manage Permissions:</strong>
+              <ul>
+                <li>View all active permissions</li>
+                <li>Revoke permissions at any time</li>
+                <li>Monitor usage and expiry times</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Execute Permissions:</strong>
+              <ul>
+                <li>If you're an agent, view permissions granted to you</li>
+                <li>Execute permitted commands within specified limits</li>
+              </ul>
+            </li>
+          </ol>
+
+
+          <div class="about-footer">
+            <p>
+              🔒 Security Note: Please ensure you carefully review transaction
+              popups and verify calldata using open source tools like
+              <a
+                href="https://calldata.swiss-knife.xyz/decoder"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Swiss Knife</a
+              >.
+            </p>
+            <p>
+              💡 Need help? Check out the
+              <a
+                href="https://github.com/NaniDAO/ie"
+                target="_blank"
+                rel="noopener noreferrer"
+                >IE documentation</a
+              >
+              and
+              <a
+                href="https://basescan.org/address/0xa9606fB9Ebc5c7Fe8bfa78462ad914753BC761c6#code"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Permits contract</a
+              >
+              which handle remote token allowances.
+            </p>
+          </div>
+        </div>
+      </details>
+    </div>
+
+
+    <!-- Owner View -->
+    <div class="owner-view">
+      <div class="container">
+        <div class="mode-toggle">
+          <input
+            type="radio"
+            id="set-permission"
+            name="mode"
+            value="set"
+            checked
+          />
+          <label for="set-permission">Set Permission</label>
+          <input type="radio" id="view-permissions" name="mode" value="view" />
+          <label for="view-permissions">View Permissions</label>
+        </div>
+
+
+        <!-- Set Permission Form -->
+        <div id="set-permission-form">
+          <div class="input-group">
+            <div class="label-container">
+              <div class="input-label">Agent</div>
+              <div id="character-image"></div>
+            </div>
+            <input
+              type="text"
+              id="agent-address"
+              value="nani"
+              placeholder="0x...basename"
+            />
+          </div>
+
+
+          <div class="input-group">
+            <div class="input-label">Command</div>
+            <input
+              type="text"
+              id="command-string"
+              value="swap 10 usdc to eth"
+              placeholder="Enter command (e.g., 'swap 999 USDC for ETH')"
+            />
+          </div>
+
+
+          <div class="input-group">
+            <div class="input-label">Prompt (optional)</div>
+            <textarea
+              id="prompt"
+              placeholder="Add a note about this permission ('swap if eth is over $4k usd')"
+            >
+swap if eth is under $4k and space things out for dca</textarea
+
+            >
+          </div>
+
+
+          <div class="input-group">
+            <div class="input-label">Uses</div>
+            <input
+              type="number"
+              id="uses"
+              value="9"
+              placeholder="Number of times this permission can be used"
+              min="1"
+            />
+          </div>
+
+
+          <div class="input-group">
+            <div class="input-label">Expiry (hours from now)</div>
+            <input
+              type="number"
+              id="expiry-hours"
+              value="48"
+              placeholder="Hours until permission expires (0 for no expiry)"
+              min="0"
+            />
+          </div>
+        </div>
+
+
+        <div class="form-footer">
+          <div class="tip-container">
+            <span class="tip-label">Tip:</span>
+            <div class="tip-input-group">
+              <input
+                type="number"
+                id="tip-amount"
+                class="tip-input"
+                value="0.00001"
+                placeholder="0.00001"
+                step="0.00001"
+                min="0"
+              />
+              <span class="eth-symbol">ETH</span>
+              <div class="tip-controls">
+                <button class="tip-control-btn" onclick="adjustTip('0.00001')">
+                  +0.00001
+                </button>
+                <button class="tip-control-btn" onclick="adjustTip('0.0001')">
+                  +0.0001
+                </button>
+              </div>
+            </div>
+          </div>
+          <button id="set-permission-btn">Set Permission</button>
+        </div>
+
+
+        <!-- Active Permissions List -->
+        <div id="active-permissions" style="display: none">
+          <h3>Active Permissions</h3>
+          <div id="permissions-list"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Agent View -->
+    <div class="agent-view">
+      <div class="container">
+        <h3>Permitted Commands</h3>
+        <div id="agent-permissions-list"></div>
+      </div>
+    </div>
+
+
+    <div id="status" class="error"></div>
+    <div id="toast-container"></div>
+
+
+    <script>
+      const PERMITS_ADDRESS = "0xa9606fB9Ebc5c7Fe8bfa78462ad914753BC761c6";
+      const IE_ADDRESS = "0x1e4FE500980000D7679EcE0000D000B49E740493";
+
+
+      const SUPPORTED_CHAINS = {
+        8453: {
+          name: "BASE",
+          rpcUrl: "https://mainnet.base.org",
+          blockExplorer: "https://basescan.org",
+          chainName: "Base",
+        },
+      };
+
+
+      const PERMITS_ABI = [
+        {
+          inputs: [
+            { internalType: "contract IIE", name: "ie", type: "address" },
+          ],
+          stateMutability: "payable",
+          type: "constructor",
+        },
+        { inputs: [], name: "InvalidCall", type: "error" },
+        { inputs: [], name: "Overwrite", type: "error" },
+        { inputs: [], name: "Reentrancy", type: "error" },
+        { inputs: [], name: "TransferFailed", type: "error" },
+        { inputs: [], name: "Unauthorized", type: "error" },
+        { inputs: [], name: "UsesExceeded", type: "error" },
+        { inputs: [], name: "UsesExpired", type: "error" },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "agent",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "commandHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "PermissionExecuted",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "agent",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "commandHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "oldPrompt",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "newPrompt",
+              type: "string",
+            },
+          ],
+          name: "PermissionPromptUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "agent",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "commandHash",
+              type: "bytes32",
+            },
+          ],
+          name: "PermissionRevoked",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "agent",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "commandHash",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "command",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "prompt",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "uses",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint48",
+              name: "expiry",
+              type: "uint48",
+            },
+          ],
+          name: "PermissionSet",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+          ],
+          name: "TokenApproved",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "IE",
+          outputs: [
+            { internalType: "contract IIE", name: "", type: "address" },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "uint256", name: "", type: "uint256" },
+          ],
+          name: "agentCommands",
+          outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "contract IERC20", name: "token", type: "address" },
+          ],
+          name: "approve",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+          ],
+          name: "commands",
+          outputs: [
+            { internalType: "string", name: "command", type: "string" },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "string", name: "command", type: "string" },
+          ],
+          name: "execute",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "agent", type: "address" },
+          ],
+          name: "getAgentCommands",
+          outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ internalType: "address", name: "agent", type: "address" }],
+          name: "getAgentOwners",
+          outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ internalType: "address", name: "agent", type: "address" }],
+          name: "getAllActivePermissionsForAgent",
+          outputs: [
+            {
+              components: [
+                { internalType: "bool", name: "active", type: "bool" },
+                { internalType: "uint32", name: "usesLeft", type: "uint32" },
+                { internalType: "uint48", name: "timeLeft", type: "uint48" },
+                {
+                  internalType: "address",
+                  name: "inputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "outputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "inputAmount",
+                  type: "uint256",
+                },
+                { internalType: "bool", name: "isSwap", type: "bool" },
+                {
+                  internalType: "string",
+                  name: "commandString",
+                  type: "string",
+                },
+                { internalType: "string", name: "prompt", type: "string" },
+                { internalType: "uint48", name: "createdAt", type: "uint48" },
+                { internalType: "uint48", name: "lastUsedAt", type: "uint48" },
+                { internalType: "address", name: "owner", type: "address" },
+                { internalType: "address", name: "agent", type: "address" },
+              ],
+              internalType: "struct Permits.PermissionDetails[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ internalType: "address", name: "owner", type: "address" }],
+          name: "getAllActivePermissionsForOwner",
+          outputs: [
+            {
+              components: [
+                { internalType: "bool", name: "active", type: "bool" },
+                { internalType: "uint32", name: "usesLeft", type: "uint32" },
+                { internalType: "uint48", name: "timeLeft", type: "uint48" },
+                {
+                  internalType: "address",
+                  name: "inputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "outputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "inputAmount",
+                  type: "uint256",
+                },
+                { internalType: "bool", name: "isSwap", type: "bool" },
+                {
+                  internalType: "string",
+                  name: "commandString",
+                  type: "string",
+                },
+                { internalType: "string", name: "prompt", type: "string" },
+                { internalType: "uint48", name: "createdAt", type: "uint48" },
+                { internalType: "uint48", name: "lastUsedAt", type: "uint48" },
+                { internalType: "address", name: "owner", type: "address" },
+                { internalType: "address", name: "agent", type: "address" },
+              ],
+              internalType: "struct Permits.PermissionDetails[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+          ],
+          name: "getDetailedPermission",
+          outputs: [
+            {
+              components: [
+                { internalType: "bool", name: "active", type: "bool" },
+                { internalType: "uint32", name: "usesLeft", type: "uint32" },
+                { internalType: "uint48", name: "timeLeft", type: "uint48" },
+                {
+                  internalType: "address",
+                  name: "inputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "outputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "inputAmount",
+                  type: "uint256",
+                },
+                { internalType: "bool", name: "isSwap", type: "bool" },
+                {
+                  internalType: "string",
+                  name: "commandString",
+                  type: "string",
+                },
+                { internalType: "string", name: "prompt", type: "string" },
+                { internalType: "uint48", name: "createdAt", type: "uint48" },
+                { internalType: "uint48", name: "lastUsedAt", type: "uint48" },
+                { internalType: "address", name: "owner", type: "address" },
+                { internalType: "address", name: "agent", type: "address" },
+              ],
+              internalType: "struct Permits.PermissionDetails",
+              name: "details",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ internalType: "address", name: "owner", type: "address" }],
+          name: "getOwnerAgents",
+          outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ internalType: "address", name: "owner", type: "address" }],
+          name: "getOwnerStats",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "totalPermissions",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "activePermissions",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalExecutions",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint48",
+                  name: "lastActivityTime",
+                  type: "uint48",
+                },
+              ],
+              internalType: "struct Permits.OwnerStats",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "token", type: "address" },
+          ],
+          name: "getTokenPermissions",
+          outputs: [
+            {
+              components: [
+                { internalType: "bool", name: "active", type: "bool" },
+                { internalType: "uint32", name: "usesLeft", type: "uint32" },
+                { internalType: "uint48", name: "timeLeft", type: "uint48" },
+                {
+                  internalType: "address",
+                  name: "inputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "outputToken",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "inputAmount",
+                  type: "uint256",
+                },
+                { internalType: "bool", name: "isSwap", type: "bool" },
+                {
+                  internalType: "string",
+                  name: "commandString",
+                  type: "string",
+                },
+                { internalType: "string", name: "prompt", type: "string" },
+                { internalType: "uint48", name: "createdAt", type: "uint48" },
+                { internalType: "uint48", name: "lastUsedAt", type: "uint48" },
+                { internalType: "address", name: "owner", type: "address" },
+                { internalType: "address", name: "agent", type: "address" },
+              ],
+              internalType: "struct Permits.PermissionDetails[]",
+              name: "tokenPerms",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+          ],
+          name: "isPermissionValid",
+          outputs: [{ internalType: "bool", name: "", type: "bool" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+          ],
+          name: "permissions",
+          outputs: [
+            { internalType: "uint32", name: "uses", type: "uint32" },
+            { internalType: "uint32", name: "used", type: "uint32" },
+            { internalType: "uint48", name: "end", type: "uint48" },
+            { internalType: "uint48", name: "createdAt", type: "uint48" },
+            { internalType: "uint48", name: "lastUsedAt", type: "uint48" },
+            { internalType: "string", name: "prompt", type: "string" },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+          ],
+          name: "revokePermission",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "string", name: "command", type: "string" },
+            { internalType: "uint32", name: "uses", type: "uint32" },
+            { internalType: "uint48", name: "end", type: "uint48" },
+            { internalType: "string", name: "prompt", type: "string" },
+          ],
+          name: "setPermission",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "agent", type: "address" },
+          ],
+          name: "tipped",
+          outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "owner", type: "address" },
+            { internalType: "address", name: "token", type: "address" },
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+          ],
+          name: "tokenCommandAgents",
+          outputs: [
+            { internalType: "address", name: "agent", type: "address" },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            { internalType: "address", name: "agent", type: "address" },
+            { internalType: "bytes32", name: "commandHash", type: "bytes32" },
+            { internalType: "string", name: "newPrompt", type: "string" },
+          ],
+          name: "updatePermissionPrompt",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        { stateMutability: "payable", type: "receive" },
+      ];
+
+
+      const IE_ABI = [
+        {
+          inputs: [{ name: "intent", type: "string" }],
+          name: "previewCommand",
+          outputs: [
+            { name: "to", type: "address" },
+            { name: "amount", type: "uint256" },
+            { name: "minAmountOut", type: "uint256" },
+            { name: "token", type: "address" },
+            { name: "callData", type: "bytes" },
+            { name: "executeCallData", type: "bytes" },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ name: "intent", type: "string" }],
+          name: "command",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [{ name: "user", type: "address" }],
+          name: "whatIsTheNameOf",
+          outputs: [{ name: "", type: "string" }],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [{ name: "name", type: "string" }],
+          name: "whatIsTheAddressOf",
+          outputs: [
+            { name: "owner", type: "address" },
+            { name: "receiver", type: "address" },
+            { name: "node", type: "bytes32" },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ];
+
+
+      const ERC20_ABI = [
+        "function approve(address spender, uint256 amount) external returns (bool)",
+        "function allowance(address owner, address spender) external view returns (uint256)",
+      ];
+
+
+      const debounce = (fn, delay) => {
+        let timeoutId;
+        return (...args) => {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => fn(...args), delay);
+        };
+      };
+
+
+      let provider, signer, permitsContract, ieContract, currentChainId;
+
+
+      // Core UI Elements
+      const domElements = {
+        agentAddress: document.getElementById("agent-address"),
+        commandString: document.getElementById("command-string"),
+        prompt: document.getElementById("prompt"),
+        uses: document.getElementById("uses"),
+        expiryHours: document.getElementById("expiry-hours"),
+        setPermissionBtn: document.getElementById("set-permission-btn"),
+        permissionsList: document.getElementById("permissions-list"),
+        agentPermissionsList: document.getElementById("agent-permissions-list"),
+        status: document.getElementById("status"),
+        tip: document.getElementById("tip-amount"),
+      };
+
+
+      // Add these at the top level of your script
+      const CONNECTION_STATES = {
+        DISCONNECTED: "disconnected",
+        CONNECTING: "connecting",
+        CONNECTED: "connected",
+      };
+
+
+      let connectionState = CONNECTION_STATES.DISCONNECTED;
+      const MAX_RETRIES = 3;
+      const RETRY_DELAY = 1000; // 1 second
+
+
+      const COMMAND_PATTERNS = {
+        swap: {
+          basic: /^swap\s+(\d*\.?\d+)\s+(\w+)\s+for\s+(\w+)$/i,
+          missingFor: /^swap\s+(\d*\.?\d+)\s+(\w+)\s+(\w+)$/i,
+          withMinimum:
+            /^swap\s+(\d*\.?\d+)\s+(\w+)\s+for\s+(\d*\.?\d+)\s+(\w+)$/i,
+          withDestination:
+            /^swap\s+(\d*\.?\d+)\s+(\w+)\s+for\s+(\w+)\s+for\s+(\w+)$/i,
+        },
+        send: {
+          basic: /^(send|transfer|pay)\s+(\w+)\s+(\d*\.?\d+)\s+(\w+)$/i,
+          reversed: /^(send|transfer|pay)\s+(\d*\.?\d+)\s+(\w+)\s+(\w+)$/i, // common mistake
+        },
+      };
+
+
+      const TOKEN_COLORS = {
+        command: "#4A9EFF", // blue for commands
+        amount: "#00FF9D", // green for amounts
+        token: "#FF69B4", // pink for tokens
+        address: "#FFA500", // orange for addresses/ENS names
+        conjunction: "#666666", // gray for 'for', 'to', etc.
+      };
+
+
+      const CacheManager = {
+        caches: {
+          names: new Map(),
+          permissions: new Map(),
+          tokenInfo: new Map(),
+          commandPreviews: new Map(),
+        },
+
+
+        TTL: {
+          names: 30 * 60 * 1000, // 30 minutes for name resolutions
+          permissions: 30 * 1000, // 30 seconds for permissions
+          tokenInfo: 24 * 60 * 60 * 1000, // 24 hours for static token data
+          commandPreviews: 60 * 1000, // 1 minute for command previews
+        },
+
+
+        set: function (cacheType, key, value) {
+          if (!this.caches[cacheType]) {
+            throw new Error(`Invalid cache type: ${cacheType}`);
+          }
+
+
+          this.caches[cacheType].set(key, {
+            value,
+            timestamp: Date.now(),
+          });
+        },
+
+
+        get: function (cacheType, key) {
+          if (!this.caches[cacheType]) {
+            throw new Error(`Invalid cache type: ${cacheType}`);
+          }
+
+
+          const entry = this.caches[cacheType].get(key);
+          if (!entry) return null;
+
+
+          // Check if entry has expired
+          if (Date.now() - entry.timestamp > this.TTL[cacheType]) {
+            this.caches[cacheType].delete(key);
+            return null;
+          }
+
+
+          return entry.value;
+        },
+
+
+        clear: function (cacheType) {
+          if (cacheType) {
+            this.caches[cacheType]?.clear();
+          } else {
+            Object.values(this.caches).forEach((cache) => cache.clear());
+          }
+        },
+      };
+
+
+      function analyzeAndSuggest(input) {
+        const trimmed = input.trim().toLowerCase().replace(/\s+/g, " ");
+        const words = trimmed.split(" ");
+        const firstWord = words[0]?.toLowerCase();
+
+
+        let suggestions = [];
+        let correction = null;
+
+
+        // Basic command structure validation
+        const validCommands = ["swap", "send", "transfer", "pay"];
+        if (!validCommands.includes(firstWord)) {
+          suggestions.push('Start with "swap" or "send"');
+          return { suggestions, isValid: false };
+        }
+
+
+        // Check for ETH as input token
+        const ethVariants = ["eth", "ether", "ethereum"];
+        if (words.length > 2) {
+          const inputToken = words[2].toLowerCase();
+          if (ethVariants.includes(inputToken)) {
+            suggestions.push("❗ ETH cannot be used as an input token");
+            suggestions.push(
+              "💡 Wrap ETH to WETH first: Use the deposit function in the WETH contract"
+            );
+            return { suggestions, isValid: false };
+          }
+        }
+
+
+        const VALID_PATTERNS = {
+          basicSwap: {
+            pattern: /^swap (\d+\.?\d*) (\w+) (for|to) (\w+)$/,
+            example: "swap 1000 USDC for ETH",
+          },
+          swapWithMinimum: {
+            pattern: /^swap (\d+\.?\d*) (\w+) (for|to) (\d+\.?\d*) (\w+)$/,
+            example: "swap 1000 DAI for 0.5 ETH",
+          },
+          swapWithDestination: {
+            pattern: /^swap (\d+\.?\d*) (\w+) (to|for) (\w+) (to|for) (\w+)$/,
+            example: "swap 1000 DAI for ETH for vitalik",
+          },
+          send: {
+            pattern: /^(send|transfer|pay) (\d+\.?\d*) (\w+) to (\w+)$/,
+            example: "send 100 USDC to nani",
+          },
+        };
+
+
+        if (firstWord === "swap") {
+          // Check for missing input token after amount
+          if (words.length === 2 && words[1].match(/^\d+\.?\d*$/)) {
+            suggestions.push("Specify an input token");
+            suggestions.push("Format: swap [amount] [token] for/to [token]");
+            suggestions.push("Example: " + VALID_PATTERNS.basicSwap.example);
+            return { correction: null, suggestions, isValid: false };
+          }
+
+
+          if (!trimmed.includes("for") && !trimmed.includes("to")) {
+            if (words.length >= 3) {
+              correction = `${trimmed} for eth`;
+              suggestions.push("Add destination token with 'for' or 'to'");
+            } else {
+              suggestions.push("Include amount and input token");
+            }
+            suggestions.push("Example: " + VALID_PATTERNS.basicSwap.example);
+          } else if (words.length < 4) {
+            suggestions.push("Include amount and both tokens");
+            suggestions.push("Format: swap [amount] [token] for/to [token]");
+          } else if (!words[1].match(/^\d+\.?\d*$/)) {
+            suggestions.push("Amount must be a number");
+            suggestions.push("Example: " + VALID_PATTERNS.basicSwap.example);
+          }
+        } else if (["send", "transfer", "pay"].includes(firstWord)) {
+          if (!trimmed.includes("to")) {
+            // Don't automatically append the token as recipient
+            correction = `${trimmed} to`; // Just add "to" without a recipient
+            suggestions.push("Add recipient with 'to'");
+            suggestions.push("Example: " + VALID_PATTERNS.send.example);
+          }
+          // Check if amount is in correct position and is a number
+          const potentialAmount = words[1];
+          if (!potentialAmount?.match(/^\d+\.?\d*$/)) {
+            suggestions.push(
+              "Amount must be in format: send [amount] [token] to [recipient]"
+            );
+            suggestions.push("Example: " + VALID_PATTERNS.send.example);
+          }
+        }
+
+
+        Object.entries(VALID_PATTERNS).forEach(([key, { pattern }]) => {
+          console.log(`Testing ${key}:`, pattern.test(trimmed));
+          if (key === "swapWithDestination") {
+            console.log("Pattern:", pattern);
+            console.log("Input:", trimmed);
+            console.log("Test result:", pattern.test(trimmed));
+          }
+        });
+
+
+        // Check if input matches any valid pattern
+        const isValid = Object.values(VALID_PATTERNS).some(({ pattern }) =>
+          pattern.test(trimmed)
+        );
+
+
+        return {
+          correction,
+          suggestions: suggestions.filter(Boolean),
+          isValid,
+        };
+      }
+
+
+      function highlightCommand(input) {
+        // Split the input once and process each word individually
+        const words = input.trim().split(/\s+/);
+        let html = [];
+
+
+        // Process each word with its type
+        words.forEach((word, index) => {
+          let type = "";
+          const lword = word.toLowerCase();
+
+
+          // Determine word type
+          if (
+            index === 0 &&
+            [
+              "send",
+              "transfer",
+              "pay",
+              "grant",
+              "swap",
+              "lock",
+              "lockup",
+              "escrow",
+            ].includes(lword)
+          ) {
+            type = "command";
+          } else if (/^\d*\.?\d+$/.test(word)) {
+            type = "amount";
+          } else if (/^(ETH|WETH|DAI|USDC|USDT|WBTC)$/i.test(word)) {
+            type = "token";
+          } else if (/^(for|to)$/i.test(word)) {
+            type = "conjunction";
+          } else if (/^(\w+\.eth|0x[a-f0-9]{40}|\w+)$/i.test(word)) {
+            type = "address";
+          }
+
+
+          const color = TOKEN_COLORS[type] || "#fff";
+          html.push(`<span style="color: ${color}">${word}</span>`);
+        });
+
+
+        return html.join(" ");
+      }
+
+
+      function applyCommandSuggestion(suggestion) {
+        const commandInput = document.getElementById("command-string");
+        if (commandInput) {
+          commandInput.value = suggestion;
+          // Trigger the input event to update preview and validation
+          commandInput.dispatchEvent(new Event("input"));
+          // Optional: Focus the input after applying suggestion
+          commandInput.focus();
+        }
+      }
+
+
+      function normalizeAgentName(input) {
+        // Don't modify if it's a hex address
+        if (input.startsWith("0x")) {
+          return input;
+        }
+
+
+        // Remove .base.eth and .eth suffixes
+        let normalized = input
+          .toLowerCase()
+          .replace(/\.base\.eth$/, "")
+          .replace(/\.eth$/, "");
+
+
+        return normalized;
+      }
+
+
+      // Utility Functions
+      function showError(message, context = "") {
+        const formattedMessage = context ? `${context}: ${message}` : message;
+        const errorElement = document.getElementById("status");
+        errorElement.innerHTML = `<div><strong>Error</strong><br>${formattedMessage}</div>`;
+        errorElement.style.display = "block";
+        setTimeout(() => {
+          errorElement.style.display = "none";
+        }, 5000);
+      }
+
+
+      function showToast(message, txHash, isError = false) {
+        const toastContainer = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "toast";
+
+
+        const explorerUrl = "https://basescan.org";
+        const txUrl = `${explorerUrl}/tx/${txHash}`;
+
+
+        toast.innerHTML = `
+                        <div>${message}</div>
+                        ${
+                          txHash
+                            ? `<a href="${txUrl}" target="_blank" rel="noopener noreferrer">View on Explorer →</a>`
+                            : ""
+                        }
+                      `;
+
+
+        if (isError) toast.style.borderColor = "#d32f2f";
+
+
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateX(100%)";
+          setTimeout(() => toast.remove(), 300);
+        }, 5000);
+      }
+
+
+      async function connectWallet(retryCount = 0) {
+        // Prevent multiple connection attempts
+        if (connectionState === CONNECTION_STATES.CONNECTING) {
+          showToast("Connection in progress...");
+          return;
+        }
+
+
+        try {
+          connectionState = CONNECTION_STATES.CONNECTING;
+
+
+          if (typeof window.ethereum === "undefined") {
+            throw new Error("Please install MetaMask to use this application");
+          }
+
+
+          loading.show();
+
+
+          // Clear any existing state
+          provider = null;
+          signer = null;
+          permitsContract = null;
+          ieContract = null;
+
+
+          // Request accounts with timeout
+          const accounts = await Promise.race([
+            window.ethereum.request({ method: "eth_requestAccounts" }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error("Connection timeout")), 10000)
+            ),
+          ]);
+
+
+          if (!accounts || accounts.length === 0) {
+            throw new Error("No accounts found");
+          }
+
+
+          // Initialize provider with timeout
+          provider = new ethers.BrowserProvider(window.ethereum);
+
+
+          try {
+            signer = await Promise.race([
+              provider.getSigner(),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Signer timeout")), 5000)
+              ),
+            ]);
+          } catch (error) {
+            if (retryCount < MAX_RETRIES) {
+              console.log(
+                `Retrying signer initialization (${
+                  retryCount + 1
+                }/${MAX_RETRIES})...`
+              );
+              await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+              return connectWallet(retryCount + 1);
+            }
+            throw error;
+          }
+
+
+          const address = await signer.getAddress();
+
+
+          // Check network before initializing contracts
+          const network = await provider.getNetwork();
+          currentChainId = Number(network.chainId);
+
+
+          if (network.chainId !== 8453n) {
+            await switchNetwork(8453);
+            return; // switchNetwork will handle reconnection
+          }
+
+
+          if (!SUPPORTED_CHAINS[currentChainId]) {
+            throw new Error("Please connect to a supported network");
+          }
+
+
+          // Initialize contracts
+          try {
+            permitsContract = new ethers.Contract(
+              PERMITS_ADDRESS,
+              PERMITS_ABI,
+              signer
+            );
+            ieContract = new ethers.Contract(IE_ADDRESS, IE_ABI, signer);
+
+
+            // Verify contract connectivity
+            await Promise.all([
+              permitsContract.IE(),
+              ieContract.whatIsTheNameOf(address),
+            ]);
+          } catch (error) {
+            console.error("Contract initialization error:", error);
+            throw new Error(
+              "Failed to initialize contracts. Please try again."
+            );
+          }
+
+
+          // Update UI only after successful connection
+          document.querySelector(".placeholder-container").style.display =
+            "none";
+          document.querySelector(".about-section").style.display = "block";
+
+
+          // Update display name
+          const displayName = await resolveAddressToName(address);
+          const displayElement = document.getElementById("account-info");
+          if (displayElement) {
+            displayElement.textContent =
+              displayName === address
+                ? `${address.substring(0, 6)}...${address.substring(38)}`
+                : displayName;
+          }
+
+
+          // Update UI elements
+          const elements = {
+            logoutBtn: document.getElementById("logout-btn"),
+            connectWallet: document.getElementById("connect-wallet"),
+          };
+
+
+          if (elements.logoutBtn) elements.logoutBtn.style.display = "block";
+          if (elements.connectWallet)
+            elements.connectWallet.style.display = "none";
+
+
+          // Initialize views and data
+          await Promise.all([initializeUserView()]);
+
+
+          // Setup event listeners after successful connection
+          setupEventListeners();
+
+
+          // Trigger command preview
+          const commandInput = document.getElementById("command-string");
+          if (commandInput && commandInput.value) {
+            const event = new Event("input", {
+              bubbles: true,
+              cancelable: true,
+            });
+            requestAnimationFrame(() => {
+              commandInput.dispatchEvent(event);
+            });
+          }
+
+
+          connectionState = CONNECTION_STATES.CONNECTED;
+
+
+          // Store connection state
+          localStorage.setItem("walletConnected", "true");
+          localStorage.setItem("lastConnectedAddress", address);
+
+
+          return true;
+        } catch (error) {
+          connectionState = CONNECTION_STATES.DISCONNECTED;
+
+
+          // Clear any partial state
+          provider = null;
+          signer = null;
+          permitsContract = null;
+          ieContract = null;
+
+
+          // Handle specific errors
+          if (error.code === 4001) {
+            showToast(
+              "Please approve the connection request in your wallet",
+              null,
+              true
+            );
+          } else if (error.code === -32002) {
+            showToast(
+              "Connection request pending. Please check your wallet",
+              null,
+              true
+            );
+          } else if (error.message?.includes("timeout")) {
+            if (retryCount < MAX_RETRIES) {
+              console.log(
+                `Connection timed out. Retrying (${
+                  retryCount + 1
+                }/${MAX_RETRIES})...`
+              );
+              await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+              return connectWallet(retryCount + 1);
+            }
+            showToast("Connection timed out. Please try again", null, true);
+          } else {
+            handleWalletError(error);
+          }
+
+
+          return false;
+        } finally {
+          if (connectionState !== CONNECTION_STATES.CONNECTED) {
+            connectionState = CONNECTION_STATES.DISCONNECTED;
+          }
+          loading.hide();
+        }
+      }
+
+
+      async function attemptReconnection() {
+        if (
+          localStorage.getItem("walletConnected") === "true" &&
+          window.ethereum
+        ) {
+          const lastAddress = localStorage.getItem("lastConnectedAddress");
+          const currentAccounts = await window.ethereum.request({
+            method: "eth_accounts",
+          });
+
+
+          if (
+            currentAccounts.length > 0 &&
+            currentAccounts[0].toLowerCase() === lastAddress?.toLowerCase()
+          ) {
+            return connectWallet();
+          }
+        }
+        return false;
+      }
+
+
+      function adjustTip(amount) {
+        const tipInput = document.getElementById("tip-amount");
+        const currentValue = parseFloat(tipInput.value) || 0;
+        tipInput.value = (currentValue + parseFloat(amount)).toFixed(5);
+      }
+
+
+      function arrangeCircularText() {
+        const text = document.querySelector(".circular-text");
+        const letters = text.getElementsByTagName("span");
+        const deg = 360 / letters.length;
+
+
+        for (let i = 0; i < letters.length; i++) {
+          letters[i].style.transform = `rotate(${i * deg}deg)`;
+        }
+      }
+
+
+      document.addEventListener("DOMContentLoaded", arrangeCircularText);
+
+
+      async function setPermission() {
+        try {
+          const agentInput = domElements.agentAddress.value;
+          const rawCommand = domElements.commandString.value.trim();
+          const uses = parseInt(domElements.uses.value);
+          const expiryHours = parseInt(domElements.expiryHours.value) || 0;
+          const prompt = domElements.prompt.value.trim();
+          const tipAmount = domElements.tip.value;
+
+
+          // Input validation
+          if (!agentInput || !rawCommand || isNaN(uses) || uses <= 0) {
+            throw new Error("Please fill all required fields");
+          }
+
+
+          loading.show();
+
+
+          // Network check
+          const network = await provider.getNetwork();
+          if (network.chainId !== 8453n) {
+            throw new Error("Please switch to Base network");
+          }
+
+
+          // Validate address first
+          const agent = await validateAndGetAddress(agentInput);
+          if (!agent) {
+            throw new Error("Invalid agent address");
+          }
+
+
+          // Format the command properly
+          const command = formatCommand(rawCommand);
+          console.log("Attempting to preview command:", command);
+
+
+          // Inside setPermission function, before preview call:
+          const previewCacheKey = command.toLowerCase().trim();
+          const cachedPreview = CacheManager.get(
+            "commandPreviews",
+            previewCacheKey
+          );
+
+
+          const [to, amount, minAmountOut, token, callData, executeCallData] =
+            cachedPreview ||
+            (await ieContract.previewCommand.staticCall(command));
+
+
+          if (!cachedPreview) {
+            CacheManager.set("commandPreviews", previewCacheKey, [
+              to,
+              amount,
+              minAmountOut,
+              token,
+              callData,
+              executeCallData,
+            ]);
+          }
+
+
+          console.log("Preview result:", {
+            to,
+            amount: amount.toString(),
+            minAmountOut: minAmountOut.toString(),
+            token,
+            callData: ethers.hexlify(callData),
+            executeCallData: ethers.hexlify(executeCallData),
+          });
+
+
+          // Check and handle token approval if needed
+          if (token !== ethers.ZeroAddress) {
+            const tokenContract = new ethers.Contract(token, ERC20_ABI, signer);
+            const owner = await signer.getAddress();
+            const allowance = await tokenContract.allowance(
+              owner,
+              PERMITS_ADDRESS
+            );
+            const requiredAmount =
+              amount > minAmountOut ? amount : minAmountOut;
+
+
+            console.log("Token approval check:", {
+              token,
+              allowance: allowance.toString(),
+              requiredAmount: requiredAmount.toString(),
+            });
+
+
+            if (allowance < requiredAmount) {
+              // Handle token approval first
+              const approveTx = await tokenContract.approve(
+                PERMITS_ADDRESS,
+                ethers.MaxUint256
+              );
+              showToast("Approving token...", approveTx.hash);
+              await approveTx.wait();
+              showToast("Token approved successfully!", approveTx.hash);
+
+
+              // Automatically proceed with setting permission after approval
+              const end =
+                expiryHours > 0
+                  ? Math.floor(Date.now() / 1000) + expiryHours * 3600
+                  : 0;
+
+
+              const txOptions = {};
+              if (tipAmount && parseFloat(tipAmount) > 0) {
+                txOptions.value = ethers.parseEther(tipAmount);
+              }
+
+
+              const tx = await permitsContract.setPermission(
+                agent,
+                command,
+                uses,
+                end,
+                prompt,
+                txOptions
+              );
+
+
+              showToast(
+                "Setting permission..." +
+                  (tipAmount ? ` (${tipAmount} ETH tip)` : ""),
+                tx.hash
+              );
+
+
+              await tx.wait();
+              showToast("Permission set successfully!", tx.hash);
+              await Promise.all([
+                loadActivePermissions(),
+                loadAgentPermissions(),
+              ]);
+
+
+              // Clear form
+              domElements.agentAddress.value = "";
+              domElements.commandString.value = "";
+              domElements.uses.value = "";
+              domElements.expiryHours.value = "";
+              domElements.prompt.value = "";
+              domElements.tip.value = "";
+
+
+              return; // Exit the function since we're done
+            }
+          }
+
+
+          // If no approval was needed or approval was already sufficient, proceed with setting permission
+          const end =
+            expiryHours > 0
+              ? Math.floor(Date.now() / 1000) + expiryHours * 3600
+              : 0;
+
+
+          const txOptions = {};
+          if (tipAmount && parseFloat(tipAmount) > 0) {
+            txOptions.value = ethers.parseEther(tipAmount);
+          }
+
+
+          const tx = await permitsContract.setPermission(
+            agent,
+            command,
+            uses,
+            end,
+            prompt,
+            txOptions
+          );
+
+
+          showToast(
+            "Setting permission..." +
+              (tipAmount ? ` (${tipAmount} ETH tip)` : ""),
+            tx.hash
+          );
+
+
+          await tx.wait();
+          showToast("Permission set successfully!", tx.hash);
+          await Promise.all([loadActivePermissions(), loadAgentPermissions()]);
+
+
+          // Clear form
+          domElements.agentAddress.value = "";
+          domElements.commandString.value = "";
+          domElements.uses.value = "";
+          domElements.expiryHours.value = "";
+          domElements.prompt.value = "";
+          domElements.tip.value = "";
+        } catch (error) {
+          handleWalletError(error);
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      // Helper function for command formatting
+      function formatCommand(command) {
+        // Remove extra spaces and ensure single space between words
+        return command.toLowerCase().replace(/\s+/g, " ").trim();
+      }
+
+
+      function confirmAction(title, message) {
+        return new Promise((resolve) => {
+          const dialog = document.createElement("div");
+          dialog.className = "confirmation-dialog";
+          dialog.innerHTML = `
+                        <div class="dialog-content">
+                            <div class="dialog-title">${title}</div>
+                            <div class="dialog-message">${message}</div>
+                            <div class="dialog-actions">
+                                <button class="dialog-button cancel">Cancel</button>
+                                <button class="dialog-button confirm">Confirm</button>
+                            </div>
+                        </div>
+                    `;
+
+
+          // Add event listeners after creating the elements
+          const cancelBtn = dialog.querySelector(".cancel");
+          const confirmBtn = dialog.querySelector(".confirm");
+
+
+          cancelBtn.addEventListener("click", () => {
+            dialog.remove();
+            resolve(false);
+          });
+
+
+          confirmBtn.addEventListener("click", () => {
+            dialog.remove();
+            resolve(true);
+          });
+
+
+          // Close on escape key
+          dialog.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              dialog.remove();
+              resolve(false);
+            }
+          });
+
+
+          // Close on outside click
+          dialog.addEventListener("click", (e) => {
+            if (e.target === dialog) {
+              dialog.remove();
+              resolve(false);
+            }
+          });
+
+
+          document.body.appendChild(dialog);
+        });
+      }
+
+
+      const loading = {
+        show: () =>
+          (document.querySelector(".loading-overlay").style.display = "flex"),
+        hide: () =>
+          (document.querySelector(".loading-overlay").style.display = "none"),
+      };
+
+
+      async function revokePermission(agent, commandHash) {
+        try {
+          const confirmed = await confirmAction(
+            "Revoke Permission",
+            "Are you sure you want to revoke this permission? This action cannot be undone."
+          );
+
+
+          if (!confirmed) return;
+
+
+          loading.show();
+
+
+          const owner = await signer.getAddress();
+
+
+          console.log("Revoking permission:", {
+            owner,
+            agent,
+            commandHash,
+          });
+
+
+          let gasEstimate;
+          try {
+            gasEstimate = await permitsContract.revokePermission.estimateGas(
+              agent,
+              commandHash
+            );
+            console.log("Gas estimate:", gasEstimate.toString());
+          } catch (error) {
+            console.error("Gas estimation failed:", error);
+            throw new Error(
+              "Failed to estimate gas - permission might not exist or already revoked"
+            );
+          }
+
+
+          const gasLimit = (gasEstimate * 120n) / 100n;
+
+
+          const tx = await permitsContract.revokePermission(
+            agent,
+            commandHash,
+            {
+              gasLimit,
+            }
+          );
+
+
+          showToast("Revoking permission...", tx.hash);
+          await tx.wait();
+          showToast("Permission revoked successfully!", tx.hash);
+
+
+          // Refresh both permission lists
+          await Promise.all([loadActivePermissions(), loadAgentPermissions()]);
+        } catch (error) {
+          handleWalletError(error);
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      async function executePermission(owner, command) {
+        try {
+          const confirmed = await confirmAction(
+            "Execute Permission",
+            `Are you sure you want to execute this command?<br><br>` +
+              `<strong>Command:</strong> "${command}"<br>` +
+              `<strong>Owner:</strong> ${await resolveAddressToName(owner)}`
+          );
+
+
+          if (!confirmed) return;
+
+
+          loading.show();
+
+
+          console.log("Executing permission:", { owner, command });
+
+
+          const tx = await permitsContract.execute(owner, command, {
+            gasLimit: 500000,
+          });
+
+
+          showToast("Executing permission...", tx.hash);
+
+
+          // Wait for transaction confirmation
+          await tx.wait();
+          showToast("Permission executed successfully!", tx.hash);
+
+
+          // Refresh both permission lists
+          await Promise.all([loadActivePermissions(), loadAgentPermissions()]);
+        } catch (error) {
+          handleWalletError(error);
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      const KNOWN_TOKENS = {
+        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913": "USDC",
+        "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2": "USDT",
+        "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb": "DAI",
+        "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE": "ETH",
+        "0x4200000000000000000000000000000000000006": "WETH",
+        "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed": "DEGEN",
+        "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf": "CBBTC",
+        "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b": "TBBTC",
+        "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22": "CBETH",
+        "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452": "WSTETH",
+        // Add more common Base tokens
+      };
+
+
+      function formatTokenAddress(address) {
+        if (!address) return "Unknown";
+
+
+        // Check cache first
+        const cachedToken = CacheManager.get("tokenInfo", address);
+        if (cachedToken) return cachedToken;
+
+
+        const tokenSymbol =
+          KNOWN_TOKENS[address] ||
+          `${address.substring(0, 6)}...${address.substring(38)}`;
+
+
+        // Cache the result
+        CacheManager.set("tokenInfo", address, tokenSymbol);
+        return tokenSymbol;
+      }
+
+
+      function formatDateTime(timestamp) {
+        const date = new Date(Number(timestamp) * 1000);
+        return `<span title="${date.toLocaleString()}">${date.toLocaleDateString()}</span>`;
+      }
+
+
+      async function validateAndGetAddress(input) {
+        if (!input) return null;
+        const trimmedInput = input.trim();
+
+
+        if (ethers.isAddress(trimmedInput)) {
+          return trimmedInput;
+        }
+
+
+        try {
+          // For ENS names, try direct resolution first
+          if (trimmedInput.toLowerCase().endsWith(".eth")) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const address = await provider.resolveName(trimmedInput);
+            if (address) return address;
+          }
+
+
+          // If direct resolution fails or it's a different format, try IE resolution
+          const [owner, address, node] = await ieContract.whatIsTheAddressOf(
+            trimmedInput
+          );
+          if (address === ethers.ZeroAddress) {
+            throw new Error(`No address found for ${trimmedInput}`);
+          }
+          return address;
+        } catch (error) {
+          console.error("Address validation error:", error);
+          throw new Error(`Invalid address or ENS name: ${trimmedInput}`);
+        }
+      }
+
+
+      async function resolveAddressToName(address) {
+        if (!ethers.isAddress(address)) {
+          console.warn(`Invalid address provided: ${address}`);
+          return "Invalid Address";
+        }
+
+
+        // Check cache first
+        const cachedName = CacheManager.get("names", address);
+        if (cachedName) return cachedName;
+
+
+        try {
+          // Preserve existing name resolution logic
+          const name = await ieContract.whatIsTheNameOf(address);
+          const formattedName =
+            name || `${address.substring(0, 6)}...${address.substring(38)}`;
+
+
+          // Add caching while keeping original functionality
+          CacheManager.set("names", address, formattedName);
+          return formattedName;
+        } catch (error) {
+          console.error(`Name resolution failed for ${address}:`, error);
+          const fallbackName = `${address.substring(
+            0,
+            6
+          )}...${address.substring(38)}`;
+          // Cache even the fallback to prevent repeated failed lookups
+          CacheManager.set("names", address, fallbackName);
+          return fallbackName;
+        }
+      }
+
+
+      async function previewCommand(command) {
+        const cacheKey = command.toLowerCase().trim();
+        const cachedPreview = CacheManager.get("commandPreviews", cacheKey);
+
+
+        if (cachedPreview) {
+          return cachedPreview;
+        }
+
+
+        try {
+          const preview = await ieContract.previewCommand.staticCall(command);
+          CacheManager.set("commandPreviews", cacheKey, preview);
+          return preview;
+        } catch (error) {
+          throw error;
+        }
+      }
+
+
+      function setupEventListeners() {
+        // Mode toggle handling
+        document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+          radio.addEventListener("change", (e) => {
+            const isSetMode = e.target.value === "set";
+            document.getElementById("set-permission-form").style.display =
+              isSetMode ? "block" : "none";
+            document.getElementById("active-permissions").style.display =
+              isSetMode ? "none" : "block";
+            document.querySelector(".form-footer").style.display = isSetMode
+              ? "flex"
+              : "none";
+          });
+        });
+
+
+        const commandInput = document.getElementById("command-string");
+
+
+        commandInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            setPermission();
+          }
+        });
+
+
+        const debouncedPreview = debounce(async (value) => {
+          try {
+            const commandInput = document.getElementById("command-string");
+            if (!value.trim()) {
+              const existingPreview =
+                document.getElementById("command-preview");
+              if (existingPreview) existingPreview.remove();
+              return;
+            }
+
+
+            const { correction, suggestions, isValid } =
+              analyzeAndSuggest(value);
+
+
+            let previewDiv = document.getElementById("command-preview");
+            if (!previewDiv) {
+              previewDiv = document.createElement("div");
+              previewDiv.id = "command-preview";
+              commandInput.parentNode.insertBefore(
+                previewDiv,
+                commandInput.nextSibling
+              );
+            }
+
+
+            // Build preview content
+            let previewContent = `<div>${highlightCommand(value)}</div>`;
+
+
+            // Add correction if available
+            if (correction && correction !== value) {
+              previewContent += `
+                    <div class="suggestion-item">
+                      Did you mean: <span class="suggested-command">${highlightCommand(
+                        correction
+                      )}</span>
+                      <button class="apply-button" data-suggestion="${correction.replace(
+                        /"/g,
+                        "&quot;"
+                      )}">Apply</button>
+                    </div>`;
+            }
+
+
+            // Add contextual help
+            if (suggestions.length > 0) {
+              previewContent += `
+                    <div class="help-section">
+                      ${suggestions
+                        .map((s) => `<div class="help-item">💡 ${s}</div>`)
+                        .join("")}
+                    </div>`;
+            }
+
+
+            previewDiv.innerHTML = previewContent;
+
+
+            // Set border color based on validation result
+            if (
+              value.toLowerCase().match(/^swap\s+\d*\.?\d*\s+eth\b/) // Only match ETH as input token
+            ) {
+              commandInput.style.borderColor = "#ff6b6b";
+            } else {
+              try {
+                // First check if it's a valid swap with destination
+                const swapDestPattern =
+                  /^swap \d+\.?\d* \w+ (?:to|for) \w+ (?:to|for) \w+$/i;
+                if (swapDestPattern.test(value.toLowerCase())) {
+                  commandInput.style.borderColor = "#4CAF50";
+                } else {
+                  // If not a swap with destination, try preview
+                  const preview = await previewCommand(value);
+                  commandInput.style.borderColor = preview
+                    ? "#4CAF50"
+                    : "#ff6b6b";
+                }
+              } catch (err) {
+                // Only use local validation as fallback
+                commandInput.style.borderColor = isValid
+                  ? "#4CAF50"
+                  : "#ff6b6b";
+              }
+            }
+          } catch (err) {
+            commandInput.style.borderColor = "#ff6b6b";
+          } finally {
+            commandInput.style.opacity = "1";
+          }
+        }, 300);
+
+
+        commandInput.addEventListener("input", (e) => {
+          commandInput.style.borderColor = "";
+          debouncedPreview(e.target.value);
+        });
+
+
+        document.addEventListener("click", function (e) {
+          if (e.target.matches(".apply-button")) {
+            const suggestion = e.target.getAttribute("data-suggestion");
+            applyCommandSuggestion(suggestion);
+          }
+        });
+
+
+        // Agent input handling
+        const debouncedResolveAgent = debounce(async (value) => {
+          try {
+            const agentInput = document.getElementById("agent-address");
+            if (!value.trim()) {
+              agentInput.style.borderColor = "";
+              return;
+            }
+
+
+            agentInput.style.opacity = "0.7";
+
+
+            // Normalize the input
+            const normalizedValue = normalizeAgentName(value.trim());
+
+
+            // Update input if normalized value is different
+            if (normalizedValue !== value) {
+              agentInput.value = normalizedValue;
+              const cursorPos = agentInput.selectionStart;
+              agentInput.setSelectionRange(cursorPos, cursorPos);
+            }
+
+
+            const address = await validateAndGetAddress(normalizedValue);
+            if (address) {
+              agentInput.style.borderColor = "#4CAF50";
+
+
+              const resolvedName = await resolveAddressToName(address);
+              if (resolvedName !== address) {
+                agentInput.title = `Resolved to: ${address}`;
+              }
+
+
+              if (normalizedValue !== value) {
+                let previewDiv = document.getElementById("agent-preview");
+                if (!previewDiv) {
+                  previewDiv = document.createElement("div");
+                  previewDiv.id = "agent-preview";
+                  previewDiv.className = "input-preview";
+                  agentInput.parentNode.insertBefore(
+                    previewDiv,
+                    agentInput.nextSibling
+                  );
+                }
+                previewDiv.innerHTML = `Using: ${normalizedValue}`;
+
+
+                setTimeout(() => {
+                  if (previewDiv && previewDiv.parentNode) {
+                    previewDiv.parentNode.removeChild(previewDiv);
+                  }
+                }, 3000);
+              }
+            }
+          } catch (err) {
+            console.error("Address validation error:", err);
+            const agentInput = document.getElementById("agent-address");
+            agentInput.style.borderColor = "#ff6b6b";
+
+
+            // More specific error message based on the error type
+            if (err.code === -32603) {
+              agentInput.title = "Invalid ENS name or address format";
+            } else if (err.message.includes("resolver")) {
+              agentInput.title = "ENS name not found";
+            } else {
+              agentInput.title = err.message || "Invalid address or name";
+            }
+          } finally {
+            const agentInput = document.getElementById("agent-address");
+            agentInput.style.opacity = "1";
+            setTimeout(() => {
+              agentInput.style.borderColor = "";
+            }, 2000);
+          }
+        }, 500);
+
+
+        // Add agent input event listener with character image handling
+        const agentInput = document.getElementById("agent-address");
+        let characterImage = document.getElementById("character-image");
+
+
+        // Create character image div if it doesn't exist
+        if (!characterImage) {
+          characterImage = document.createElement("div");
+          characterImage.id = "character-image";
+          characterImage.style.display = "none";
+          agentInput.parentNode.insertBefore(
+            characterImage,
+            agentInput.nextSibling
+          );
+        }
+
+
+        agentInput.addEventListener("input", (e) => {
+          agentInput.style.borderColor = "";
+          agentInput.title = "";
+
+
+          const characterImage = document.getElementById("character-image");
+          const inputValue = e.target.value.toLowerCase();
+
+
+          if (inputValue === "nani") {
+            characterImage.innerHTML = `
+                        <div class="character-info">
+                            <img src="https://content.wrappr.wtf/ipfs/QmXGGerpztLEDfH6mVNmh3xQctZK4w5DGbSgACYvWmZLyx" alt="Nani character" />
+                            <span class="character-description">multitasking generalist</span>
+                        </div>
+                    `;
+            characterImage.style.visibility = "visible";
+            characterImage.style.opacity = "1";
+
+
+            const description = characterImage.querySelector(
+              ".character-description"
+            );
+            if (description) {
+              description.style.opacity = "1";
+            }
+          } else if (inputValue === "weatherbot") {
+            characterImage.innerHTML = `
+                        <div class="character-info">
+                            <span style="font-size: 24px;">🌤️</span>
+                            <span class="character-description">weather watcher</span>
+                        </div>
+                    `;
+            characterImage.style.visibility = "visible";
+            characterImage.style.opacity = "1";
+
+
+            const description = characterImage.querySelector(
+              ".character-description"
+            );
+            if (description) {
+              description.style.opacity = "1";
+            }
+          } else {
+            characterImage.style.opacity = "0";
+            characterImage.style.visibility = "hidden";
+          }
+
+
+          debouncedResolveAgent(e.target.value);
+        });
+
+
+        if (permitsContract) {
+          permitsContract.removeAllListeners();
+        }
+
+
+        // Contract event listeners
+        permitsContract.on(
+          "PermissionSet",
+          async (owner, agent, commandHash, command, uses, expiry) => {
+            // Invalidate relevant caches
+            CacheManager.clear("permissions");
+            if (
+              owner === (await signer.getAddress()) ||
+              agent === (await signer.getAddress())
+            ) {
+              debouncedRefresh();
+            }
+          }
+        );
+
+
+        permitsContract.on(
+          "PermissionRevoked",
+          async (owner, agent, commandHash) => {
+            // Invalidate relevant caches
+            CacheManager.clear("permissions");
+            if (
+              owner === (await signer.getAddress()) ||
+              agent === (await signer.getAddress())
+            ) {
+              debouncedRefresh();
+            }
+          }
+        );
+
+
+        permitsContract.on(
+          "PermissionExecuted",
+          async (owner, agent, commandHash, timestamp) => {
+            // Invalidate relevant caches
+            CacheManager.clear("permissions");
+            if (
+              owner === (await signer.getAddress()) ||
+              agent === (await signer.getAddress())
+            ) {
+              debouncedRefresh();
+            }
+          }
+        );
+      }
+
+
+      function handleWalletError(error) {
+        // Check for nested error objects
+        const errorMessage =
+          error?.data?.message || error?.message || error?.toString();
+
+
+        // Check for common wallet rejection patterns
+        if (
+          errorMessage?.includes("User rejected") ||
+          errorMessage?.includes("user rejected") ||
+          error?.code === 4001 ||
+          error?.code === -32603
+        ) {
+          showToast("Transaction cancelled by user", null, true);
+          return;
+        }
+
+
+        // For other errors, show a clean message
+        console.error("Wallet error:", error); // Keep full error in console for debugging
+        showError("Transaction failed. Please try again.");
+      }
+
+
+      // First, add the batch loading utility function
+      async function batchLoadPermissions(addresses, type = "owner") {
+        try {
+          if (!addresses || addresses.length === 0) {
+            return [];
+          }
+
+
+          const uniqueAddresses = [...new Set(addresses)]; // Remove duplicates
+          const promises = uniqueAddresses.map(async (addr) => {
+            try {
+              return type === "owner"
+                ? await permitsContract.getAllActivePermissionsForOwner(addr)
+                : await permitsContract.getAllActivePermissionsForAgent(addr);
+            } catch (error) {
+              console.error(`Failed to load permissions for ${addr}:`, error);
+              return [];
+            }
+          });
+
+
+          const results = await Promise.all(promises);
+
+
+          // Cache results
+          uniqueAddresses.forEach((addr, index) => {
+            const cacheKey = `${type}-permissions-${addr}`;
+            CacheManager.set("permissions", cacheKey, results[index]);
+          });
+
+
+          return results;
+        } catch (error) {
+          console.error("Batch load permissions error:", error);
+          return [];
+        }
+      }
+
+
+      // Add a function to get related addresses (owners/agents)
+      async function getRelatedAddresses() {
+        try {
+          const currentAddress = await signer.getAddress();
+
+
+          // Get all addresses this user interacts with
+          const ownerAgents = await permitsContract.getOwnerAgents(
+            currentAddress
+          );
+          const agentOwners = await permitsContract.getAgentOwners(
+            currentAddress
+          );
+
+
+          return {
+            agents: ownerAgents,
+            owners: agentOwners,
+            currentAddress,
+          };
+        } catch (error) {
+          console.error("Get related addresses error:", error);
+          throw error;
+        }
+      }
+
+
+      async function initializeUserView() {
+        try {
+          loading.show();
+          const address = await signer.getAddress();
+
+
+          // Get owner stats and permissions in parallel
+          const [ownerStats, ownerPermissions, agentPermissions] =
+            await Promise.all([
+              permitsContract.getOwnerStats(address),
+              permitsContract.getAllActivePermissionsForOwner(address),
+              permitsContract.getAllActivePermissionsForAgent(address),
+            ]);
+
+
+          // Show relevant views based on permissions
+          const ownerView = document.querySelector(".owner-view");
+          const agentView = document.querySelector(".agent-view");
+
+
+          // Owner has active permissions
+          const hasActivePermissions = ownerStats.activePermissions > 0n;
+          ownerView.style.display = "block";
+
+
+          // Agent has permissions granted to them
+          const isAgent = agentPermissions.length > 0;
+          agentView.style.display = isAgent ? "block" : "none";
+
+
+          // Update UI with owner stats
+          const statsDiv = document.createElement("div");
+          statsDiv.className = "stats-container";
+          statsDiv.innerHTML = `
+                        <div>Total Permissions: ${
+                          ownerStats.totalPermissions
+                        }</div>
+                        <div>Active Permissions: ${
+                          ownerStats.activePermissions
+                        }</div>
+                        <div>Total Executions: ${
+                          ownerStats.totalExecutions
+                        }</div>
+                        ${
+                          ownerStats.lastActivityTime > 0n
+                            ? `<div>Last Activity: ${formatDateTime(
+                                ownerStats.lastActivityTime
+                              )}</div>`
+                            : ""
+                        }
+                    `;
+
+
+          // Insert stats at beginning of container
+          const containerDiv = ownerView.querySelector(".container");
+          if (containerDiv) {
+            containerDiv.insertBefore(statsDiv, containerDiv.firstChild);
+          }
+
+
+          // Load permissions if they exist
+          if (hasActivePermissions) {
+            await loadActivePermissions(ownerPermissions);
+          }
+
+
+          if (isAgent) {
+            await loadAgentPermissions(agentPermissions);
+          }
+
+
+          // Cache the results
+          const viewCacheKey = `user-view-${address}`;
+          CacheManager.set("permissions", viewCacheKey, {
+            ownerStats,
+            ownerPermissions,
+            agentPermissions,
+          });
+
+
+          const agentInput = document.getElementById("agent-address");
+          const characterImage = document.getElementById("character-image");
+          if (agentInput && agentInput.value.toLowerCase() === "nani") {
+            characterImage.innerHTML = `
+                            <div class="character-info">
+                                <img src="https://content.wrappr.wtf/ipfs/QmXGGerpztLEDfH6mVNmh3xQctZK4w5DGbSgACYvWmZLyx" alt="Nani character" />
+                                <span class="character-description">multitask generalist</span>
+                            </div>
+                        `;
+            characterImage.style.visibility = "visible";
+            characterImage.style.opacity = "1";
+
+
+            const description = characterImage.querySelector(
+              ".character-description"
+            );
+            if (description) {
+              description.style.opacity = "1";
+            }
+          }
+        } catch (error) {
+          console.error("Initialize view error:", error);
+          showError(error.message);
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      // Helper function for batch address resolution
+      async function getAddressNames(permissions) {
+        const names = new Map();
+        const addressesToResolve = new Set();
+
+
+        permissions.forEach((p) => {
+          addressesToResolve.add(p.agent);
+          addressesToResolve.add(p.owner);
+          if (p.outputToken) addressesToResolve.add(p.outputToken);
+        });
+
+
+        await Promise.all(
+          [...addressesToResolve].map(async (address) => {
+            const name = await resolveAddressToName(address);
+            names.set(address, name);
+          })
+        );
+
+
+        return names;
+      }
+
+
+      async function loadActivePermissions(preloadedPermissions = null) {
+        try {
+          const owner = await signer.getAddress();
+          loading.show();
+
+
+          // Batch load permissions and resolve addresses
+          const [permissions, addressNames] = await Promise.all([
+            preloadedPermissions ||
+              (async () => {
+                const cacheKey = `owner-permissions-${owner}`;
+                const cached = CacheManager.get("permissions", cacheKey);
+                if (cached) return cached;
+
+
+                const fresh =
+                  await permitsContract.getAllActivePermissionsForOwner(owner);
+                CacheManager.set("permissions", cacheKey, fresh);
+                return fresh;
+              })(),
+            getAddressNames(preloadedPermissions || []),
+          ]);
+
+
+          const BASESCAN_URL = "https://basescan.org/address/";
+          const STABLECOINS_6_DECIMALS = {
+            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913": "USDC",
+            "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2": "USDT",
+          };
+
+
+          const uniquePermissions = new Map();
+          permissions.forEach((permission) => {
+            if (permission.active) {
+              const key = `${permission.agent}-${permission.commandString}`;
+              uniquePermissions.set(key, permission);
+            }
+          });
+
+
+          const sortedPermissions = Array.from(uniquePermissions.values()).sort(
+            (a, b) => {
+              return Number(b.createdAt || 0n) - Number(a.createdAt || 0n);
+            }
+          );
+
+
+          const fragment = document.createDocumentFragment();
+          const formatAmount = (amount, tokenAddress) => {
+            if (!amount) return "0";
+            const decimals = STABLECOINS_6_DECIMALS[tokenAddress] ? 6 : 18;
+            return ethers.formatUnits(amount, decimals);
+          };
+
+
+          await Promise.all(
+            sortedPermissions.map(async (permission) => {
+              const div = document.createElement("div");
+              div.className = "permission-item";
+
+
+              const isSwap = permission.commandString
+                .toLowerCase()
+                .startsWith("swap");
+              const timeLeft =
+                permission.timeLeft > 0n
+                  ? (() => {
+                      const totalSeconds = Number(permission.timeLeft);
+                      const hours = Math.floor(totalSeconds / 3600);
+                      if (hours > 0) {
+                        return `${hours} hours remaining`;
+                      }
+                      const minutes = Math.floor(totalSeconds / 60);
+                      return `${minutes} minutes remaining`;
+                    })()
+                  : "No expiry";
+
+
+              const inputTokenLink = `<a href="${BASESCAN_URL}${
+                permission.inputToken
+              }"
+                                target="_blank" rel="noopener noreferrer">
+                                ${formatTokenAddress(permission.inputToken)}
+                            </a>`;
+
+
+              let tokenInfo;
+              if (isSwap) {
+                const outputTokenLink = `<a href="${BASESCAN_URL}${
+                  permission.outputToken
+                }"
+                                    target="_blank" rel="noopener noreferrer">
+                                    ${formatTokenAddress(
+                                      permission.outputToken
+                                    )}
+                                </a>`;
+                tokenInfo = `
+                                    <br>Swap: ${inputTokenLink} → ${outputTokenLink}
+                                    ${
+                                      permission.inputAmount > 0n
+                                        ? `<br>Amount: ${formatAmount(
+                                            permission.inputAmount,
+                                            permission.inputToken
+                                          )}`
+                                        : ""
+                                    }
+                                `;
+              } else {
+                const destinationLink = `<a href="${BASESCAN_URL}${
+                  permission.outputToken
+                }"
+                                    target="_blank" rel="noopener noreferrer">
+                                    ${
+                                      addressNames.get(
+                                        permission.outputToken
+                                      ) ||
+                                      (await resolveAddressToName(
+                                        permission.outputToken
+                                      ))
+                                    }
+                                </a>`;
+                tokenInfo = `
+                                    <br>Send Token: ${inputTokenLink}
+                                    <br>To: ${destinationLink}
+                                    ${
+                                      permission.inputAmount > 0n
+                                        ? `<br>Amount: ${formatAmount(
+                                            permission.inputAmount,
+                                            permission.inputToken
+                                          )}`
+                                        : ""
+                                    }
+                                `;
+              }
+
+
+              div.innerHTML = `
+                <div class="permission-info">
+                    <div class="agent-line">
+                        <span class="label">Agent:</span>
+                        <a href="${BASESCAN_URL}${permission.agent}"
+                            class="agent-name" target="_blank" rel="noopener noreferrer">
+                            ${
+                              addressNames.get(permission.agent) ||
+                              (await resolveAddressToName(permission.agent))
+                            }
+                        </a>
+                    </div>
+                    <div class="command-text">${highlightCommand(
+                      permission.commandString
+                    )}</div>
+                    ${
+                      permission.prompt
+                        ? `
+                <div class="permission-prompt">
+                    <span>✎ PROMPT:</span>
+                    ${permission.prompt}
+                </div>`
+                        : ""
+                    }
+                    <div class="permission-details">
+                        Uses left: ${permission.usesLeft} | ${timeLeft}
+                        ${tokenInfo}
+                    </div>
+                </div>
+                <div class="permission-actions">
+                  <button class="revoke-btn" onclick="revokePermission('${
+                    permission.agent
+                  }',
+                '${ethers.keccak256(
+                  ethers.toUtf8Bytes(permission.commandString)
+                )}')">
+                🗑️
+            </button>
+                </div>
+            `;
+
+
+              fragment.appendChild(div);
+            })
+          );
+
+
+          domElements.permissionsList.replaceChildren(fragment);
+          document.getElementById("active-permissions").style.display =
+            uniquePermissions.size > 0 ? "block" : "none";
+        } catch (error) {
+          console.error("Load permissions error:", error);
+          showError(error.message);
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      async function loadAgentPermissions(preloadedPermissions = null) {
+        try {
+          const agentAddress = await signer.getAddress();
+          loading.show();
+
+
+          // Batch load permissions and resolve addresses
+          const [permissions, addressNames] = await Promise.all([
+            preloadedPermissions ||
+              (async () => {
+                const cacheKey = `agent-permissions-${agentAddress}`;
+                const cached = CacheManager.get("permissions", cacheKey);
+                if (cached) return cached;
+
+
+                const fresh =
+                  await permitsContract.getAllActivePermissionsForAgent(
+                    agentAddress
+                  );
+                CacheManager.set("permissions", cacheKey, fresh);
+                return fresh;
+              })(),
+            getAddressNames(preloadedPermissions || []),
+          ]);
+
+
+          const BASESCAN_URL = "https://basescan.org/address/";
+          const STABLECOINS_6_DECIMALS = {
+            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913": "USDC",
+            "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2": "USDT",
+          };
+
+
+          const uniquePermissions = new Map();
+          permissions.forEach((permission) => {
+            if (permission.active) {
+              const key = `${permission.owner}-${permission.commandString}`;
+              uniquePermissions.set(key, permission);
+            }
+          });
+
+
+          const sortedPermissions = Array.from(uniquePermissions.values()).sort(
+            (a, b) => {
+              return Number(b.createdAt || 0n) - Number(a.createdAt || 0n);
+            }
+          );
+
+
+          const fragment = document.createDocumentFragment();
+          const formatAmount = (amount, tokenAddress) => {
+            if (!amount) return "0";
+            const decimals = STABLECOINS_6_DECIMALS[tokenAddress] ? 6 : 18;
+            return ethers.formatUnits(amount, decimals);
+          };
+
+
+          await Promise.all(
+            sortedPermissions.map(async (permission) => {
+              const div = document.createElement("div");
+              div.className = "permission-item";
+
+
+              const isSwap = permission.commandString
+                .toLowerCase()
+                .startsWith("swap");
+              const timeLeft =
+                permission.timeLeft > 0n
+                  ? (() => {
+                      const totalSeconds = Number(permission.timeLeft);
+                      const hours = Math.floor(totalSeconds / 3600);
+                      if (hours > 0) {
+                        return `${hours} hours remaining`;
+                      }
+                      const minutes = Math.floor(totalSeconds / 60);
+                      return `${minutes} minutes remaining`;
+                    })()
+                  : "No expiry";
+
+
+              const inputTokenLink = `<a href="${BASESCAN_URL}${
+                permission.inputToken
+              }"
+                                target="_blank" rel="noopener noreferrer">
+                                ${formatTokenAddress(permission.inputToken)}
+                            </a>`;
+
+
+              let tokenInfo;
+              if (isSwap) {
+                const outputTokenLink = `<a href="${BASESCAN_URL}${
+                  permission.outputToken
+                }"
+                                    target="_blank" rel="noopener noreferrer">
+                                    ${formatTokenAddress(
+                                      permission.outputToken
+                                    )}
+                                </a>`;
+                tokenInfo = `
+                                    <br>Swap: ${inputTokenLink} → ${outputTokenLink}
+                                    ${
+                                      permission.inputAmount > 0n
+                                        ? `<br>Amount: ${formatAmount(
+                                            permission.inputAmount,
+                                            permission.inputToken
+                                          )}`
+                                        : ""
+                                    }
+                                `;
+              } else {
+                const destinationLink = `<a href="${BASESCAN_URL}${
+                  permission.outputToken
+                }"
+                                    target="_blank" rel="noopener noreferrer">
+                                    ${
+                                      addressNames.get(
+                                        permission.outputToken
+                                      ) ||
+                                      (await resolveAddressToName(
+                                        permission.outputToken
+                                      ))
+                                    }
+                                </a>`;
+                tokenInfo = `
+                                    <br>Send Token: ${inputTokenLink}
+                                    <br>To: ${destinationLink}
+                                    ${
+                                      permission.inputAmount > 0n
+                                        ? `<br>Amount: ${formatAmount(
+                                            permission.inputAmount,
+                                            permission.inputToken
+                                          )}`
+                                        : ""
+                                    }
+                                `;
+              }
+
+
+              div.innerHTML = `
+                <div class="permission-info">
+                    <div class="agent-line">
+                        <span class="label">From:</span>
+                        <a href="${BASESCAN_URL}${permission.owner}"
+                            class="agent-name" target="_blank" rel="noopener noreferrer">
+                            ${
+                              addressNames.get(permission.owner) ||
+                              (await resolveAddressToName(permission.owner))
+                            }
+                        </a>
+                    </div>
+                    <div class="command-text">${highlightCommand(
+                      permission.commandString
+                    )}</div>
+                    ${
+                      permission.prompt
+                        ? `
+                <div class="permission-prompt">
+                    <span>✎ PROMPT:</span>
+                    ${permission.prompt}
+                </div>`
+                        : ""
+                    }
+                    <div class="permission-details">
+                        Uses left: ${permission.usesLeft} | ${timeLeft}
+                        ${tokenInfo}
+                        ${
+                          permission.lastUsedAt > 0n
+                            ? `<br>Last used: ${formatDateTime(
+                                permission.lastUsedAt
+                              )}`
+                            : ""
+                        }
+                    </div>
+                </div>
+                <div class="permission-actions">
+              <button class="execute-btn" onclick="executePermission('${
+                permission.owner
+              }', '${permission.commandString}')">
+                ⎆
+            </button>
+            </div>
+
+
+            `;
+
+
+              fragment.appendChild(div);
+            })
+          );
+
+
+          domElements.agentPermissionsList.replaceChildren(fragment);
+          document.querySelector(".agent-view").style.display =
+            uniquePermissions.size > 0 ? "block" : "none";
+        } catch (error) {
+          console.error("Load agent permissions error:", error);
+          showError(error.message);
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      let refreshTimeout;
+      function debouncedRefresh() {
+        clearTimeout(refreshTimeout);
+        refreshTimeout = setTimeout(async () => {
+          loading.show(); // Add loading state at start
+          try {
+            const { agents, owners, currentAddress } =
+              await getRelatedAddresses();
+
+
+            // Batch load all permissions
+            const [ownerPermissions, agentPermissions] = await Promise.all([
+              batchLoadPermissions([currentAddress, ...owners], "owner"),
+              batchLoadPermissions([currentAddress, ...agents], "agent"),
+            ]);
+
+
+            // Update UI with the first result from each batch
+            await Promise.all([
+              loadActivePermissions(ownerPermissions[0]),
+              loadAgentPermissions(agentPermissions[0]),
+            ]);
+          } catch (error) {
+            console.error("Refresh error:", error);
+            showError(error.message);
+          } finally {
+            loading.hide(); // Ensure loading state is always cleared
+            refreshTimeout = null; // Clear timeout reference
+          }
+        }, 1000);
+      }
+
+
+      async function switchNetwork(chainId) {
+        try {
+          if (!window.ethereum) throw new Error("No crypto wallet found");
+
+
+          loading.show();
+
+
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: `0x${chainId.toString(16)}` }],
+          });
+
+
+          provider = new ethers.BrowserProvider(window.ethereum);
+          signer = await provider.getSigner();
+          permitsContract = new ethers.Contract(
+            PERMITS_ADDRESS,
+            PERMITS_ABI,
+            signer
+          );
+          ieContract = new ethers.Contract(IE_ADDRESS, IE_ABI, provider);
+          currentChainId = chainId;
+
+
+          await Promise.all([initializeUserView()]);
+        } catch (switchError) {
+          console.error("Switch network error:", switchError);
+          if (switchError.code === 4902) {
+            try {
+              await window.ethereum.request({
+                method: "wallet_addEthereumChain",
+                params: [
+                  {
+                    chainId: `0x${chainId.toString(16)}`,
+                    chainName: SUPPORTED_CHAINS[chainId].chainName,
+                    rpcUrls: [SUPPORTED_CHAINS[chainId].rpcUrl],
+                    blockExplorerUrls: [
+                      SUPPORTED_CHAINS[chainId].blockExplorer,
+                    ],
+                  },
+                ],
+              });
+            } catch (addError) {
+              showError("Failed to add network");
+            }
+          } else {
+            showError("Failed to switch network");
+          }
+        } finally {
+          loading.hide();
+        }
+      }
+
+
+      function logout() {
+        localStorage.removeItem("walletConnected");
+        localStorage.removeItem("lastConnectedAddress");
+
+
+        CacheManager.clear(); // Clear all caches
+        if (permitsContract) {
+          permitsContract.removeAllListeners();
+        }
+        provider = null;
+        signer = null;
+        permitsContract = null;
+        ieContract = null;
+
+
+        document.querySelector(".about-section").style.display = "none";
+        document.querySelector(".placeholder-container").style.display = "flex";
+
+
+        // Reset UI
+        document.getElementById("connect-wallet").style.display = "block";
+        document.getElementById("logout-btn").style.display = "none";
+        document.getElementById("account-info").textContent = "";
+        document.querySelector(".owner-view").style.display = "none";
+        document.querySelector(".agent-view").style.display = "none";
+
+
+        // Clear permissions lists
+        domElements.permissionsList.innerHTML = "";
+        domElements.agentPermissionsList.innerHTML = "";
+
+
+        // Reset form
+        domElements.agentAddress.value = "";
+        domElements.commandString.value = "";
+        domElements.uses.value = "";
+        domElements.expiryHours.value = "";
+
+
+        window.location.reload();
+      }
+
+
+      // Initialize app
+      function initializeApp() {
+        // Connect basic UI elements
+        document.getElementById("connect-wallet").onclick = connectWallet;
+        document.getElementById("logout-btn").onclick = logout;
+        domElements.setPermissionBtn.onclick = setPermission;
+
+
+        // Initialize event listeners
+        setupEventListeners();
+
+
+        const agentInput = document.getElementById("agent-address");
+        const characterImage = document.getElementById("character-image");
+        if (agentInput && agentInput.value.toLowerCase() === "nani") {
+          characterImage.innerHTML = `
+                        <div class="character-info">
+                            <img src="https://content.wrappr.wtf/ipfs/QmXGGerpztLEDfH6mVNmh3xQctZK4w5DGbSgACYvWmZLyx" alt="Nani character" />
+                            <span class="character-description">multitask generalist</span>
+                        </div>
+                    `;
+          characterImage.style.visibility = "visible";
+          characterImage.style.opacity = "1";
+
+
+          const description = characterImage.querySelector(
+            ".character-description"
+          );
+          if (description) {
+            description.style.opacity = "1";
+          }
+        }
+
+
+        // Trigger initial preview synchronously
+        const commandInput = document.getElementById("command-string");
+        if (commandInput && commandInput.value) {
+          // Force a preview refresh
+          const event = new Event("input", {
+            bubbles: true,
+            cancelable: true,
+          });
+          commandInput.dispatchEvent(event);
+        }
+
+
+        // Attempt reconnection if needed
+        if (localStorage.getItem("walletConnected") === "true") {
+          attemptReconnection();
+        }
+      }
+
+
+      // Initialize when DOM is ready
+      document.addEventListener("DOMContentLoaded", initializeApp);
+
+
+      // Handle wallet events
+      if (window.ethereum) {
+        window.ethereum.on("chainChanged", () => {
+          try {
+            CacheManager.clear();
+            window.location.reload();
+          } catch (error) {
+            console.error("Chain change error:", error);
+            showError("Failed to handle network change");
+          }
+        });
+
+
+        window.ethereum.on("accountsChanged", (accounts) => {
+          if (accounts.length === 0) {
+            // Handle disconnection
+            CacheManager.clear(); // Clear all caches
+            logout();
+          } else {
+            // Handle account switch
+            CacheManager.clear("names");
+            CacheManager.clear("permissions");
+            CacheManager.clear("commandPreviews");
+            window.location.reload();
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
